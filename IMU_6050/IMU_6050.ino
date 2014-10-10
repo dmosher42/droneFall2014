@@ -19,12 +19,12 @@ float max_speed; //prevents random jumps or shut-offs
 
 //PID constants
 /* PID Calibration Notes
-1. All terms to ZERO
-2. Set P small enough to start some correction
-3. Increase D until oscillation starts. Reduce this value by 2-4
-4. Start P at 1% of D, increase till oscillation starts. Reduce this value by 2-4
-5. Start I at 1% of P, increase till oscillation starts. Reduce this value by 2-4
-*/
+ 1. All terms to ZERO
+ 2. Set P small enough to start some correction
+ 3. Increase D until oscillation starts. Reduce this value by 2-4
+ 4. Start P at 1% of D, increase till oscillation starts. Reduce this value by 2-4
+ 5. Start I at 1% of P, increase till oscillation starts. Reduce this value by 2-4
+ */
 float P = 0.0025;      //was 1, this is 1% of D
 float I = 0.01;  //this is 1% of P
 float D = 0.25; //was 0.5 but reduced by a factor of 2
@@ -670,7 +670,8 @@ typedef union accel_t_gyro_union
     uint8_t y_gyro_l;
     uint8_t z_gyro_h;
     uint8_t z_gyro_l;
-  } reg;
+  } 
+  reg;
   struct 
   {
     int x_accel;
@@ -680,7 +681,8 @@ typedef union accel_t_gyro_union
     int x_gyro;
     int y_gyro;
     int z_gyro;
-  } value;
+  } 
+  value;
 };
 
 // Use the following global variables and access functions to help store the overall
@@ -709,16 +711,36 @@ void set_last_read_angle_data(unsigned long time, float x, float y, float z, flo
   last_z_kalangle = kz;
 }
 
-inline unsigned long get_last_time() {return last_read_time;}
-inline float get_last_x_angle() {return last_x_angle;}
-inline float get_last_y_angle() {return last_y_angle;}
-inline float get_last_z_angle() {return last_z_angle;}
-inline float get_last_gyro_x_angle() {return last_gyro_x_angle;}
-inline float get_last_gyro_y_angle() {return last_gyro_y_angle;}
-inline float get_last_gyro_z_angle() {return last_gyro_z_angle;}
-inline float get_last_x_kalangle() {return last_x_kalangle;}
-inline float get_last_y_kalangle() {return last_y_kalangle;}
-inline float get_last_z_kalangle() {return last_z_kalangle;}
+inline unsigned long get_last_time() {
+  return last_read_time;
+}
+inline float get_last_x_angle() {
+  return last_x_angle;
+}
+inline float get_last_y_angle() {
+  return last_y_angle;
+}
+inline float get_last_z_angle() {
+  return last_z_angle;
+}
+inline float get_last_gyro_x_angle() {
+  return last_gyro_x_angle;
+}
+inline float get_last_gyro_y_angle() {
+  return last_gyro_y_angle;
+}
+inline float get_last_gyro_z_angle() {
+  return last_gyro_z_angle;
+}
+inline float get_last_x_kalangle() {
+  return last_x_kalangle;
+}
+inline float get_last_y_kalangle() {
+  return last_y_kalangle;
+}
+inline float get_last_z_kalangle() {
+  return last_z_kalangle;
+}
 
 //  Use the following global variables and access functions
 //  to calibrate the acceleration sensor
@@ -738,9 +760,9 @@ int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr) {
   // With the default settings of the MPU-6050,
   // there is no filter enabled, and the values
   // are not very stable.  Returns the error value
-  
+
   accel_t_gyro_union* accel_t_gyro = (accel_t_gyro_union *) accel_t_gyro_ptr;
-   
+
   int error = MPU6050_read (MPU6050_ACCEL_XOUT_H, (uint8_t *) accel_t_gyro, sizeof(*accel_t_gyro));
 
   // Swap all high and low bytes.
@@ -748,9 +770,9 @@ int read_gyro_accel_vals(uint8_t* accel_t_gyro_ptr) {
   // so the structure name like x_accel_l does no 
   // longer contain the lower byte.
   uint8_t swap;
-  #define SWAP(x,y) swap = x; x = y; y = swap
+#define SWAP(x,y) swap = x; x = y; y = swap
 
-  SWAP ((*accel_t_gyro).reg.x_accel_h, (*accel_t_gyro).reg.x_accel_l);
+    SWAP ((*accel_t_gyro).reg.x_accel_h, (*accel_t_gyro).reg.x_accel_l);
   SWAP ((*accel_t_gyro).reg.y_accel_h, (*accel_t_gyro).reg.y_accel_l);
   SWAP ((*accel_t_gyro).reg.z_accel_h, (*accel_t_gyro).reg.z_accel_l);
   SWAP ((*accel_t_gyro).reg.t_h, (*accel_t_gyro).reg.t_l);
@@ -772,12 +794,12 @@ void calibrate_sensors() {
   float                 y_gyro = 0;
   float                 z_gyro = 0;
   accel_t_gyro_union    accel_t_gyro;
-  
+
   //Serial.println("Starting Calibration");
 
   // Discard the first set of values read from the IMU
   read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
-  
+
   // Read and average the raw values from the IMU
   for (int i = 0; i < num_readings; i++) {
     read_gyro_accel_vals((uint8_t *) &accel_t_gyro);
@@ -795,7 +817,7 @@ void calibrate_sensors() {
   x_gyro /= num_readings;
   y_gyro /= num_readings;
   z_gyro /= num_readings;
-  
+
   // Store the raw calibration values globally
   base_x_accel = x_accel;
   base_y_accel = y_accel;
@@ -803,97 +825,113 @@ void calibrate_sensors() {
   base_x_gyro = x_gyro;
   base_y_gyro = y_gyro;
   base_z_gyro = z_gyro;
-  
+
   //Serial.println("Finishing Calibration");
 }
 
 
 /************************
-* KALMAN - Filter setup *
-*************************/
+ * KALMAN - Filter setup *
+ *************************/
 class Kalman {
 public:
-    Kalman() {
-        /* We will set the varibles like so, these can also be tuned by the user */
-        Q_angle = 0.001;
-        Q_bias = 0.003;
-        R_measure = 0.03;
-        
-        bias = 0; // Reset bias
-        P[0][0] = 0; // Since we assume tha the bias is 0 and we know the starting angle (use setAngle), the error covariance matrix is set like so - see: http://en.wikipedia.org/wiki/Kalman_filter#Example_application.2C_technical
-        P[0][1] = 0;
-        P[1][0] = 0;
-        P[1][1] = 0;
-    };
-    // The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
-    float getAngle(float newAngle, float newRate, float dt) {
-        // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
-        // Modified by Kristian Lauszus
-        // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
-                        
-        // Discrete Kalman filter time update equations - Time Update ("Predict")
-        // Update xhat - Project the state ahead
-        /* Step 1 */
-        rate = newRate - bias;
-        angle += dt * rate;
-        
-        // Update estimation error covariance - Project the error covariance ahead
-        /* Step 2 */
-        P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
-        P[0][1] -= dt * P[1][1];
-        P[1][0] -= dt * P[1][1];
-        P[1][1] += Q_bias * dt;
-        
-        // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
-        // Calculate Kalman gain - Compute the Kalman gain
-        /* Step 4 */
-        S = P[0][0] + R_measure;
-        /* Step 5 */
-        K[0] = P[0][0] / S;
-        K[1] = P[1][0] / S;
-        
-        // Calculate angle and bias - Update estimate with measurement zk (newAngle)
-        /* Step 3 */
-        y = newAngle - angle;
-        /* Step 6 */
-        angle += K[0] * y;
-        bias += K[1] * y;
-        
-        // Calculate estimation error covariance - Update the error covariance
-        /* Step 7 */
-        P[0][0] -= K[0] * P[0][0];
-        P[0][1] -= K[0] * P[0][1];
-        P[1][0] -= K[1] * P[0][0];
-        P[1][1] -= K[1] * P[0][1];
-        
-        return angle;
-    };
-    void setAngle(double newAngle) { angle = newAngle; }; // Used to set angle, this should be set as the starting angle
-    double getRate() { return rate; }; // Return the unbiased rate
-    
-    /* These are used to tune the Kalman filter */
-    void setQangle(double newQ_angle) { Q_angle = newQ_angle; };
-    void setQbias(double newQ_bias) { Q_bias = newQ_bias; };
-    void setRmeasure(double newR_measure) { R_measure = newR_measure; };
-    
-    double getQangle() { return Q_angle; };
-    double getQbias() { return Q_bias; };
-    double getRmeasure() { return R_measure; };
-    
+  Kalman() {
+    /* We will set the varibles like so, these can also be tuned by the user */
+    Q_angle = 0.001;
+    Q_bias = 0.003;
+    R_measure = 0.03;
+
+    bias = 0; // Reset bias
+    P[0][0] = 0; // Since we assume tha the bias is 0 and we know the starting angle (use setAngle), the error covariance matrix is set like so - see: http://en.wikipedia.org/wiki/Kalman_filter#Example_application.2C_technical
+    P[0][1] = 0;
+    P[1][0] = 0;
+    P[1][1] = 0;
+  };
+  // The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
+  float getAngle(float newAngle, float newRate, float dt) {
+    // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
+    // Modified by Kristian Lauszus
+    // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
+
+      // Discrete Kalman filter time update equations - Time Update ("Predict")
+    // Update xhat - Project the state ahead
+    /* Step 1 */
+    rate = newRate - bias;
+    angle += dt * rate;
+
+    // Update estimation error covariance - Project the error covariance ahead
+    /* Step 2 */
+    P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
+    P[0][1] -= dt * P[1][1];
+    P[1][0] -= dt * P[1][1];
+    P[1][1] += Q_bias * dt;
+
+    // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
+    // Calculate Kalman gain - Compute the Kalman gain
+    /* Step 4 */
+    S = P[0][0] + R_measure;
+    /* Step 5 */
+    K[0] = P[0][0] / S;
+    K[1] = P[1][0] / S;
+
+    // Calculate angle and bias - Update estimate with measurement zk (newAngle)
+    /* Step 3 */
+    y = newAngle - angle;
+    /* Step 6 */
+    angle += K[0] * y;
+    bias += K[1] * y;
+
+    // Calculate estimation error covariance - Update the error covariance
+    /* Step 7 */
+    P[0][0] -= K[0] * P[0][0];
+    P[0][1] -= K[0] * P[0][1];
+    P[1][0] -= K[1] * P[0][0];
+    P[1][1] -= K[1] * P[0][1];
+
+    return angle;
+  };
+  void setAngle(double newAngle) { 
+    angle = newAngle; 
+  }; // Used to set angle, this should be set as the starting angle
+  double getRate() { 
+    return rate; 
+  }; // Return the unbiased rate
+
+  /* These are used to tune the Kalman filter */
+  void setQangle(double newQ_angle) { 
+    Q_angle = newQ_angle; 
+  };
+  void setQbias(double newQ_bias) { 
+    Q_bias = newQ_bias; 
+  };
+  void setRmeasure(double newR_measure) { 
+    R_measure = newR_measure; 
+  };
+
+  double getQangle() { 
+    return Q_angle; 
+  };
+  double getQbias() { 
+    return Q_bias; 
+  };
+  double getRmeasure() { 
+    return R_measure; 
+  };
+
 private:
-    /* Kalman filter variables */
-    double Q_angle; // Process noise variance for the accelerometer
-    double Q_bias; // Process noise variance for the gyro bias
-    double R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
-    
+  /* Kalman filter variables */
+  double Q_angle; // Process noise variance for the accelerometer
+  double Q_bias; // Process noise variance for the gyro bias
+  double R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+
     double angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
-    double bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state matrix
-    double rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
-    
+  double bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state matrix
+  double rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
+
     double P[2][2]; // Error covariance matrix - This is a 2x2 matrix
-    double K[2]; // Kalman gain - This is a 2x1 matrix
-    double y; // Angle difference - 1x1 matrix
-    double S; // Estimate error - 1x1 matrix
+  double K[2]; // Kalman gain - This is a 2x1 matrix
+  double y; // Angle difference - 1x1 matrix
+  double S; // Estimate error - 1x1 matrix
 };
 Kalman kalmanX; // Create the Kalman instances
 Kalman kalmanY;
@@ -901,8 +939,8 @@ Kalman kalmanY;
 
 
 /********
-* SETUP *
-*********/
+ * SETUP *
+ *********/
 
 void setup()
 {      
@@ -912,7 +950,7 @@ void setup()
 
 
   Serial.begin(9600);
-  
+
   // Initialize the 'Wire' class for the I2C-bus.
   Wire.begin();
 
@@ -925,7 +963,7 @@ void setup()
   //
 
   error = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
-  
+
 
   // According to the datasheet, the 'sleep' bit
   // should read a '1'. But I read a '0'.
@@ -933,21 +971,21 @@ void setup()
   // is in sleep mode at power-up. Even if the
   // bit reads '0'.
   error = MPU6050_read (MPU6050_PWR_MGMT_2, &c, 1);
-  
+
   // Clear the 'sleep' bit to start the sensor.
   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
-  
+
   //Initialize the angles
   calibrate_sensors();  
   set_last_read_angle_data(millis(), 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  
-  
+
+
   // Get raw acceleration values
   //float G_CONVERT = 16384;
   float accel_x = accel_t_gyro.value.x_accel;
   float accel_y = accel_t_gyro.value.y_accel;
   float accel_z = accel_t_gyro.value.z_accel;
-  
+
   // Get angle values from accelerometer
   float RADIANS_TO_DEGREES = 180/3.14159;
   //  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
@@ -955,13 +993,13 @@ void setup()
   float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
 
   float accel_angle_z = 0;
-  
+
   kalmanX.setAngle(accel_angle_x); // Set starting angle
   kalmanY.setAngle(accel_angle_y);
 
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);
-  
+
   //initialize arrays
   for(temp = 0; temp < 4; temp++)
   {
@@ -970,10 +1008,10 @@ void setup()
     error_Y[temp] = 0;
     error_X[temp] = 0;
   }
-  
+
   error_Y[4] = 0;
   error_X[4] =
-  //keep motors off...
+    //keep motors off...
   min_speed = 0;
   max_speed = 0;
   count = 0;
@@ -982,23 +1020,23 @@ void setup()
 
 
 /************
-* Main loop *
-*************/
+ * Main loop *
+ *************/
 void loop()
 {
   int error;
   double dT;
   accel_t_gyro_union accel_t_gyro;
-  
+
   float kalAngleX, kalAngleY, kalAngleZ; // Calculate the angle using a Kalman filter
   float kalAngleX_last, kalAngleY_last, kalAngleZ_last;
-      
+
   // Read the raw values.
   error = read_gyro_accel_vals((uint8_t*) &accel_t_gyro);
-  
+
   // Get the time of reading for rotation computations
   unsigned long t_now = millis();
-   
+
 
   // Convert gyro values to degrees/sec
   float FS_SEL = 131;
@@ -1006,110 +1044,110 @@ void loop()
   float gyro_x = (accel_t_gyro.value.x_gyro - base_x_gyro)/FS_SEL;
   float gyro_y = (accel_t_gyro.value.y_gyro - base_y_gyro)/FS_SEL;
   float gyro_z = (accel_t_gyro.value.z_gyro - base_z_gyro)/FS_SEL;
-  
-  
+
+
   // Get raw acceleration values
   //float G_CONVERT = 16384;
   float accel_x = accel_t_gyro.value.x_accel;
   float accel_y = accel_t_gyro.value.y_accel;
   float accel_z = accel_t_gyro.value.z_accel;
-  
+
   // Get angle values from accelerometer
   float RADIANS_TO_DEGREES = 180/3.14159;
-//  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
+  //  float accel_vector_length = sqrt(pow(accel_x,2) + pow(accel_y,2) + pow(accel_z,2));
   float accel_angle_y = atan(-1*accel_x/sqrt(pow(accel_y,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
   float accel_angle_x = atan(accel_y/sqrt(pow(accel_x,2) + pow(accel_z,2)))*RADIANS_TO_DEGREES;
 
   float accel_angle_z = 0;
-  
+
   // Compute the (filtered) gyro angles
   float dt =(t_now - get_last_time())/1000.0;
   float gyro_angle_x = gyro_x*dt + get_last_x_angle();
   float gyro_angle_y = gyro_y*dt + get_last_y_angle();
   float gyro_angle_z = gyro_z*dt + get_last_z_angle();
-  
+
   // Compute the drifting gyro angles
   float unfiltered_gyro_angle_x = gyro_x*dt + get_last_gyro_x_angle();
   float unfiltered_gyro_angle_y = gyro_y*dt + get_last_gyro_y_angle();
   float unfiltered_gyro_angle_z = gyro_z*dt + get_last_gyro_z_angle();
-  
+
   // Apply the complementary filter to figure out the change in angle - choice of alpha is
   // estimated now.  Alpha depends on the sampling rate...
   float alpha = 0.96;
   float angle_x = alpha*gyro_angle_x + (1.0 - alpha)*accel_angle_x;
   float angle_y = alpha*gyro_angle_y + (1.0 - alpha)*accel_angle_y;
   float angle_z = gyro_angle_z;  //Accelerometer doesn't give z-angle
-  
-  
+
+
   //KALMAN filter
   kalAngleX = kalmanX.getAngle(accel_angle_x, gyro_x, dt);
   //delay(5);
   kalAngleY = kalmanY.getAngle(accel_angle_y, gyro_y, dt);
   kalAngleZ = gyro_angle_z;
-  
-  
+
+
   // Update the saved data with the latest values
   set_last_read_angle_data(t_now, angle_x, angle_y, angle_z, unfiltered_gyro_angle_x, unfiltered_gyro_angle_y, unfiltered_gyro_angle_z, kalAngleX, kalAngleY, kalAngleZ);
-  
+
   //Note added: 10/08/13 pad() creates padding that is required to ensure 128Bytes are sent. May not be needed as new version of LV code maybe able to handle
-  
+
   //Serial.print("START");
   // Send the data to the serial port
-//  Serial.print(F("DEL:"));              //Delta T
-//  Serial.print(dt, DEC);
-//  
-//  Serial.print(F("#ACC:"));  //Accelerometer angle
-//  pad(accel_angle_x);
-//  //Serial.print(accel_angle_x, 2);
-//  Serial.print(F(","));
-//  pad(accel_angle_y);
-//  //Serial.print(accel_angle_y, 2);
-//  Serial.print(F(","));
-//  pad(accel_angle_z);
-//  //Serial.print(accel_angle_z, 2);
-//  
-//  Serial.print(F("#GYR:"));
-//  pad(unfiltered_gyro_angle_x);
-//  //Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
-//  Serial.print(F(","));
-//  pad(unfiltered_gyro_angle_y);
-//  //Serial.print(unfiltered_gyro_angle_y, 2);
-//  Serial.print(F(","));
-//  pad(unfiltered_gyro_angle_z);
-//  //Serial.print(unfiltered_gyro_angle_z, 2);
-//  
-//  Serial.print(F("#FIL:"));             //Filtered angle
-//  pad(angle_x);
-//  //Serial.print(angle_x, 2);
-//  Serial.print(F(","));
-//  pad(angle_y);
-//  //Serial.print(angle_y, 2);
-//  Serial.print(F(","));
-//  pad(angle_z);
-//  //Serial.print(angle_z, 2);
-//  Serial.print(F(","));
-//  
-//  Serial.print(F("#KAL:"));             //Kalman Filtered angle
-//  pad(kalAngleX);
-//  //Serial.print(kalAngleX, 2);
-//  Serial.print(F(","));
-//  pad (kalAngleY);
-//  //Serial.print(kalAngleY, 2);
-//  Serial.print(F(","));
-//  pad(kalAngleZ);
-//  //Serial.print(kalAngleZ, 2);
-//  //Serial.print("END");
-//  Serial.print("\n");
-//  //Serial.println(F(""));
-//  Serial.flush();
+  //  Serial.print(F("DEL:"));              //Delta T
+  //  Serial.print(dt, DEC);
+  //  
+  //  Serial.print(F("#ACC:"));  //Accelerometer angle
+  //  pad(accel_angle_x);
+  //  //Serial.print(accel_angle_x, 2);
+  //  Serial.print(F(","));
+  //  pad(accel_angle_y);
+  //  //Serial.print(accel_angle_y, 2);
+  //  Serial.print(F(","));
+  //  pad(accel_angle_z);
+  //  //Serial.print(accel_angle_z, 2);
+  //  
+  //  Serial.print(F("#GYR:"));
+  //  pad(unfiltered_gyro_angle_x);
+  //  //Serial.print(unfiltered_gyro_angle_x, 2);        //Gyroscope angle
+  //  Serial.print(F(","));
+  //  pad(unfiltered_gyro_angle_y);
+  //  //Serial.print(unfiltered_gyro_angle_y, 2);
+  //  Serial.print(F(","));
+  //  pad(unfiltered_gyro_angle_z);
+  //  //Serial.print(unfiltered_gyro_angle_z, 2);
+  //  
+  //  Serial.print(F("#FIL:"));             //Filtered angle
+  //  pad(angle_x);
+  //  //Serial.print(angle_x, 2);
+  //  Serial.print(F(","));
+  //  pad(angle_y);
+  //  //Serial.print(angle_y, 2);
+  //  Serial.print(F(","));
+  //  pad(angle_z);
+  //  //Serial.print(angle_z, 2);
+  //  Serial.print(F(","));
+  //  
+  //  Serial.print(F("#KAL:"));             //Kalman Filtered angle
+  //  pad(kalAngleX);
+  //  //Serial.print(kalAngleX, 2);
+  //  Serial.print(F(","));
+  //  pad (kalAngleY);
+  //  //Serial.print(kalAngleY, 2);
+  //  Serial.print(F(","));
+  //  pad(kalAngleZ);
+  //  //Serial.print(kalAngleZ, 2);
+  //  //Serial.print("END");
+  //  Serial.print("\n");
+  //  //Serial.println(F(""));
+  //  Serial.flush();
   // Delay so we don't swamp the serial port
-  
+
   if(Serial.available() > 0)
   {
     incomingByte = Serial.read();
     if(incomingByte == 'H')
     {
-        digitalWrite(ledPin, HIGH);
+      digitalWrite(ledPin, HIGH);
     }
     if(incomingByte == 'L')
     {
@@ -1144,26 +1182,26 @@ void loop()
     }
     if(incomingByte == 'W') //Motors spin up by 10
     {
-     user[0]+=10; 
-     user[1]+=10;
-     user[2]+=10;
-     user[3]+=10;
+      user[0]+=10; 
+      user[1]+=10;
+      user[2]+=10;
+      user[3]+=10;
     }
     if(incomingByte == 'S') //Motors spin down by 10
     {
-     user[0]-=10; 
-     user[1]-=10;
-     user[2]-=10;
-     user[3]-=10;
+      user[0]-=10; 
+      user[1]-=10;
+      user[2]-=10;
+      user[3]-=10;
     }
     /*if(incomingByte == 'D') //Auto spin down motors and then turn off
-    {
-      
-    }*/
+     {
+     
+     }*/
   }
-  
-  
-  
+
+
+
   if(millis() < 30000)
   {
     Serial.print(millis());
@@ -1176,13 +1214,13 @@ void loop()
   {
     error_X[count] = kalAngleX - kalAngleX_last;
     error_Y[count] = kalAngleY - kalAngleY_last;
-    
+
     //motor speed
     motor[0] = (P * kalAngleX) + (I * (error_X[0] + error_X[1] + error_X[2] + error_X[3] + error_X[4])) + (D * -error_X[count]) + user[0];
     motor[1] = (P * kalAngleY) + (I * (error_Y[0] + error_Y[1] + error_Y[2] + error_Y[3] + error_Y[4])) + (D * -error_Y[count]) + user[1];
     motor[2] = (P * -kalAngleX) + (I * (error_X[0] + error_X[1] + error_X[2] + error_X[3] + error_X[4])) + (D * error_X[count]) + user[2];
     motor[3] = (P * -kalAngleY) + (I * (error_Y[0] + error_Y[1] + error_Y[2] + error_Y[3] + error_Y[4])) + (D * error_Y[count]) + user[3];
-    
+
     //prevents motors from firing at incorrect times or powering off in flight
     for(temp = 0; temp < 4; temp++)
     {
@@ -1195,7 +1233,7 @@ void loop()
         motor[temp] = min_speed;
       }
     }
-    
+
     Serial.print(int(round(motor[0])));
     Serial.print('\n');
     //motor enable
@@ -1204,11 +1242,11 @@ void loop()
     analogWrite(10, int(round(motor[2]))); //disabled for rig testing
     analogWrite(11, int(round(motor[3])));
   }
-  
+
   kalAngleY_last = kalAngleY;
   kalAngleX_last = kalAngleX;
   delay(5); //so not to swamp the serial port
-  
+
   if(count >= 4)
   {
     count = 0;
@@ -1319,25 +1357,26 @@ int MPU6050_write_reg(int reg, uint8_t data)
 //This function pads the printed value to take up 
 //7 characters Example: **20.16
 void pad(float PadVal){
-  
+
   //Positve Value
   if (PadVal > 0){          //For positive value
     if(PadVal < 10){        //For positive value less than 10
-     Serial.print("***");   //0-9 ***0-9.00
- }  
- else if (PadVal < 100){    //values less than 100
- Serial.print("**");        //10-99 **10-99.00
- }
-    
+      Serial.print("***");   //0-9 ***0-9.00
+    }  
+    else if (PadVal < 100){    //values less than 100
+      Serial.print("**");        //10-99 **10-99.00
+    }
+
   }
   else if(PadVal < 0){      //for negative values
     if(PadVal > -10){        //for negative value greater than -10 
-     Serial.print("**");     //-9 - 0 **-1 - -9.00
- }  
- else if (PadVal > -100){   //for negative values lesss than -99
- Serial.print("*");          //*-99.00
- }
+      Serial.print("**");     //-9 - 0 **-1 - -9.00
+    }  
+    else if (PadVal > -100){   //for negative values lesss than -99
+      Serial.print("*");          //*-99.00
+    }
   }
-    
- Serial.print(PadVal, 2);  //print the padded value
+
+  Serial.print(PadVal, 2);  //print the padded value
 }
+
