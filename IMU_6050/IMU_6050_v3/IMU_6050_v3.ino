@@ -1107,11 +1107,11 @@ void loop()
   //Sending sensor data through serial
   //Bookmark Cereal/super cereal guys
 
-   Serial.println("ax");
+   Serial.print("ax ");
    Serial.println(accel_angle_x, 2);
-   Serial.println("ay");
+   Serial.print("ay ");
    Serial.println(accel_angle_y, 2);
-   Serial.println("az");
+   Serial.print("az ");
    Serial.println(accel_angle_z, 2);
    
 

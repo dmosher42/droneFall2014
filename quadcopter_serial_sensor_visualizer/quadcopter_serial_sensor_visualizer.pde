@@ -14,6 +14,23 @@ import processing.serial.*;
 
 Serial myPort;        // The serial port
 int xPos = 1;         // horizontal position of the graph
+int numgraph = 3;      // how many graphs?
+String serialconnection = "tty.usbmodem"; //What your serial connection is. For usb: "tty.usbmodem"
+
+/*
+//Smoothing test
+ // Define the number of samples to keep track of.  The higher the number,
+ // the more the readings will be smoothed, but the slower the output will
+ // respond to the input.  Using a constant rather than a normal variable lets
+ // use this value to determine the size of the readings array.
+ int numReadings = 10;
+ 
+ int[][] readings = new int[numgraph][numReadings];      // the readings from the analog input
+ int index = 0;                  // the index of the current reading
+ int total = 0;                  // the running total
+ int average = 0;                // the average
+ */
+
 
 void setup () {
   // set the window size:
@@ -23,25 +40,32 @@ void setup () {
   int l = Serial.list().length;
   String[] supercereal = new String[l];
   supercereal=Serial.list();
+
+  //This part finds the USB.
   int i=0;
   for (; i<l; i++)
   {
-    String[] m2 = match(supercereal[i], "tty.usbmodem");
+    String[] m2 = match(supercereal[i], serialconnection);
     if (m2 != null)
     {
       println("Found " + supercereal[i]);
       break;
     }
   }
-  // I know that the first port in the serial list on my mac
-  // is always my  Arduino, so I open Serial.list()[0].
-  // Open whatever port is the one you're using.
   myPort = new Serial(this, Serial.list()[i], 9600);
   // don't generate a serialEvent() unless you get a newline character:
   myPort.bufferUntil('\n');
   // set inital background:
   background(0);
+  /*
+  //Smoothing test
+   // initialize all the readings to 0: 
+   for (int thisReading = 0; thisReading < numReadings; thisReading++)
+   for (int thisgraph = 0; thisgraph < numgraph; thisgraph++)
+   readings[thisgraph][thisReading] = 0;
+   */
 }
+
 void draw () {
   // everything happens in the serialEvent()
 }
@@ -50,18 +74,34 @@ void serialEvent (Serial myPort) {
   // get the ASCII string:
   String inString = myPort.readStringUntil('\n');
   boolean graph = false;
-  int yoffset = 255;
-  println(inString);
+  int yoffset = height/numgraph;
   if (inString != null) {
     // trim off any whitespace:
     inString = trim(inString);
 
-    //switch graphs
-    print("1 ");
+    //this is to avoid problems with short strings running through inString.charAt(1)
     if (inString.length()<2) {
-      println("PING!");
+      println("ERROR: SHORT STRING. RETURNING");
       return;
     }
+
+    switch(inString.charAt(0))
+    {
+    case 'a':
+      print("a");
+      yoffset = yoffset;
+      break;
+    case 'g':
+      print("g");
+      yoffset = yoffset;
+      break;
+    default:
+      println(inString.charAt(0));
+      return;
+    }
+
+
+    //switch between x,y,z graphs
     switch(inString.charAt(1))
     {
     case 'x':
@@ -81,13 +121,33 @@ void serialEvent (Serial myPort) {
       yoffset = -yoffset;
       break;
     default:
-      println("2D");
-      break;
+      print("2D:");
+      println(inString);
+      return;
     }
 
-    //
-    //    if (graph == 1)
-    //    {
+/*
+//Smooth test
+    // subtract the last reading:
+    total= total - readings[index];         
+    // read from the sensor:  
+    readings[index] = analogRead(inputPin); 
+    // add the reading to the total:
+    total= total + readings[index];       
+    // advance to the next position in the array:  
+    index = index + 1;                    
+
+    // if we're at the end of the array...
+    if (index >= numReadings)              
+      // ...wrap around to the beginning: 
+      index = 0;                           
+
+    // calculate the average:
+    average = total / numReadings;         
+*/
+
+
+    //discard which graph we are using
     inString = split(inString, ' ')[1];
     // convert to an int and map to the screen height:
     float inByte = float(inString);
@@ -105,8 +165,6 @@ void serialEvent (Serial myPort) {
       // increment the horizontal position:
       xPos++;
     }
-
-    //    }
   }
 }
 
