@@ -12,6 +12,8 @@
 
 import processing.serial.*;
 
+PrintWriter csvoutput;
+
 Serial myPort;        // The serial port
 int xPos = 1;         // horizontal position of the graph
 int numgraph = 3;      // how many graphs?
@@ -64,6 +66,9 @@ void setup () {
    for (int thisgraph = 0; thisgraph < numgraph; thisgraph++)
    readings[thisgraph][thisReading] = 0;
    */
+
+  // Create a new file in the sketch directory
+  csvoutput = createWriter("positions.txt");
 }
 
 void draw () {
@@ -126,25 +131,25 @@ void serialEvent (Serial myPort) {
       return;
     }
 
-/*
+    /*
 //Smooth test
-    // subtract the last reading:
-    total= total - readings[index];         
-    // read from the sensor:  
-    readings[index] = analogRead(inputPin); 
-    // add the reading to the total:
-    total= total + readings[index];       
-    // advance to the next position in the array:  
-    index = index + 1;                    
-
-    // if we're at the end of the array...
-    if (index >= numReadings)              
-      // ...wrap around to the beginning: 
-      index = 0;                           
-
-    // calculate the average:
-    average = total / numReadings;         
-*/
+     // subtract the last reading:
+     total= total - readings[index];         
+     // read from the sensor:  
+     readings[index] = analogRead(inputPin); 
+     // add the reading to the total:
+     total= total + readings[index];       
+     // advance to the next position in the array:  
+     index = index + 1;                    
+     
+     // if we're at the end of the array...
+     if (index >= numReadings)              
+     // ...wrap around to the beginning: 
+     index = 0;                           
+     
+     // calculate the average:
+     average = total / numReadings;         
+     */
 
 
     //discard which graph we are using
